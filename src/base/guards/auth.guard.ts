@@ -1,4 +1,3 @@
-import { jwtConstants } from '../../auth/contants';
 import {
   CanActivate,
   ExecutionContext,
@@ -10,12 +9,17 @@ import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorator/public.decorator';
 import { Request } from 'express';
+import { AuthJwtService } from '../../auth/service/auth-jwt.service';
+import { ConfigService } from '@nestjs/config';
+import { UserEntity } from '../../user/entities/user.entity';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private reflector: Reflector,
+    private readonly authJwtService: AuthJwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -29,19 +33,23 @@ export class AuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
-    console.log(token);
     if (!token) {
       throw new ForbiddenException('JWT.AUTH_FAIL');
     }
 
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: jwtConstants.secret,
+        secret: this.configService.get<string>('SECRET_KEY_ACCESS_TOKEN'),
       });
-      request['user'] = payload;
+      const user: UserEntity = await this.authJwtService.userData(payload);
+      if (!user) {
+        throw new UnauthorizedException('JWT.TOKEN_EXPIRED');
+      }
+      request['user'] = user;
     } catch {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('JWT.TOKEN_EXPIRED');
     }
+
     return true;
   }
 

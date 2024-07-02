@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -10,10 +8,12 @@ import { UserEntity } from './user/entities/user.entity';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './base/guards/role.guard';
 import { AuthGuard } from './base/guards/auth.guard';
-import { AuthCanJwt } from './auth/controller/auth.controller';
+import { MailModule } from './base/mail/mail.module';
+import { HealthModule } from './base/health/health.module';
 
 @Module({
   imports: [
+    HealthModule,
     AuthModule,
     UserModule,
     ConfigModule.forRoot({ isGlobal: true }),
@@ -27,10 +27,9 @@ import { AuthCanJwt } from './auth/controller/auth.controller';
       entities: [UserEntity],
       synchronize: true,
     }),
+    MailModule,
   ],
-  controllers: [AppController],
   providers: [
-    AppService,
     JwtService,
     {
       provide: APP_GUARD,

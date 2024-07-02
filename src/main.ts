@@ -13,6 +13,7 @@ async function bootstrap() {
     .setTitle('CRUD NESTJS POSTGRESQL')
     .setDescription('SIMPLE API CRUD')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

@@ -1,6 +1,4 @@
-import { IsEmail } from 'class-validator';
+import { PickType } from '@nestjs/swagger';
+import { BaseDto } from '../../base/dto/base.dto';
 
-export class UpdateUserDto {
-  @IsEmail()
-  email: string;
-}
+export class UpdateUserDto extends PickType(BaseDto, ['email']) {}

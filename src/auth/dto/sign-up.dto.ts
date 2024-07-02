@@ -1,7 +1,3 @@
-import { IsEmail, IsNotEmpty } from 'class-validator';
-import { EmailBase } from 'src/base/dto/base.dto';
+import { AuthBaseDTO } from '../../base/dto/auth-base.dto';
 
-export class SignUpDto extends EmailBase {
-  @IsNotEmpty()
-  password: string;
-}
+export class SignUpDto extends AuthBaseDTO {}

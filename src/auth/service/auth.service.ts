@@ -1,20 +1,25 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { UserService } from 'src/user/user.service';
 import { SignUpDto } from '../dto/sign-up.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { jwtConstants } from '../contants';
+import { RefreshTokenDto } from '../../base/dto/refresh-token.dto';
+import { ConfigService } from '@nestjs/config';
+import { TokenDto } from '../../base/dto/token.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly userService: UserService,
     private readonly jwtService: JwtService,
     @InjectRepository(UserEntity)
     private readonly authRepository: Repository<UserEntity>,
+    private readonly configService: ConfigService,
   ) {}
 
   async createUser(dto: SignUpDto) {
@@ -39,20 +44,21 @@ export class AuthService {
     return await this.getTokens(user);
   }
 
-  async logOut(dto) {
-    const userGet = await this.authRepository.findOneBy({ id: dto.sub });
-    if (userGet.uav != dto.uav)
-      throw new ForbiddenException('JWT.TOKEN_EXPIRED');
-    const updateUser = {
+  async logout(dto: UserEntity) {
+    const userGet = await this.authRepository.findOneBy({
+      id: dto.id,
+    });
+    const updateUser: UserEntity = {
       ...userGet,
-      id: dto.sub,
+      id: dto.id,
       uav: userGet.uav + 1,
     };
-    await this.authRepository.update(dto.sub, updateUser);
-    return;
+
+    await this.authRepository.update(dto.id, updateUser);
+    return null;
   }
 
-  async getTokens(user: UserEntity) {
+  async getTokens(user: UserEntity): Promise<TokenDto> {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
@@ -62,7 +68,7 @@ export class AuthService {
           uav: user.uav,
         },
         {
-          secret: process.env.SECRET_KEY_ACCESS_TOKEN,
+          secret: this.configService.get<string>('SECRET_KEY_ACCESS_TOKEN'),
           expiresIn: '15m',
         },
       ),
@@ -74,7 +80,7 @@ export class AuthService {
           uav: user.uav,
         },
         {
-          secret: process.env.SECRET_KEY_REFRESH_TOKEN,
+          secret: this.configService.get<string>('SECRET_KEY_REFRESH_TOKEN'),
           expiresIn: '7d',
         },
       ),
@@ -86,10 +92,17 @@ export class AuthService {
     };
   }
 
-  async refreshToken(refreshToken: string) {
-    const user = await this.jwtService.verifyAsync(refreshToken, {
-      secret: jwtConstants.secret,
-    });
-    return await this.getTokens(user);
+  async refreshToken(refreshToken: RefreshTokenDto) {
+    try {
+      const user = await this.jwtService.verifyAsync(
+        refreshToken.refreshToken,
+        {
+          secret: this.configService.get<string>('SECRET_KEY_REFRESH_TOKEN'),
+        },
+      );
+      return await this.getTokens(user);
+    } catch (error) {
+      throw new BadRequestException('JWT.REFRESH_AUTH_FAIL');
+    }
   }
 }
