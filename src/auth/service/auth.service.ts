@@ -55,7 +55,8 @@ export class AuthService {
     };
 
     await this.authRepository.update(dto.id, updateUser);
-    return null;
+    return { data: null };
+    ``;
   }
 
   async getTokens(user: UserEntity): Promise<TokenDto> {

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
 import { Repository } from 'typeorm';
+import { CheckUavDto } from '../dto/check-uav.dto';
 
 @Injectable()
 export class AuthJwtService {
@@ -10,7 +11,7 @@ export class AuthJwtService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async userData(dto): Promise<UserEntity> {
+  async userData(dto: CheckUavDto): Promise<UserEntity> {
     const user: UserEntity = await this.userRepository.findOneBy({
       id: dto.sub,
     });

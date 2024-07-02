@@ -8,6 +8,7 @@ import { authenticator } from 'otplib';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../../user/entities/user.entity';
+import { CheckEmailDto } from '../dto/check-email.dto';
 
 @Injectable()
 export class MailService {
@@ -21,7 +22,8 @@ export class MailService {
   async genOtp(email: string): Promise<string> {
     const user = await this.getUser(email);
 
-    authenticator.options = { digits: 4 };
+    authenticator.options = { digits: 4, step: 300 };
+
     return authenticator.generate(email + user.uav);
   }
 
@@ -33,12 +35,18 @@ export class MailService {
     return user;
   }
 
-  async checkOtp(email: string, otp: string): Promise<boolean> {
-    const user = await this.getUser(email);
+  async verifyEmail(dto: CheckEmailDto) {
+    const user = await this.getUser(dto.email);
     try {
-      return authenticator.check(otp, email + user.uav);
+      const check = authenticator.check(dto.otp, dto.email + user.uav);
+
+      if (!check) {
+        throw new UnauthorizedException('AUTH.OTP_FAIL');
+      }
+
+      return { data: null };
     } catch (err) {
-      console.error(err);
+      throw new UnauthorizedException('AUTH.OTP_FAIL');
     }
   }
 
