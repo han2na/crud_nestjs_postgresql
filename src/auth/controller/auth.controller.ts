@@ -1,10 +1,12 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
-import { SignInDto } from '../dto/sign-in.dto';
 import { SignUpDto } from '../dto/sign-up.dto';
 import { Public } from '../../base/decorator/public.decorator';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RefreshTokenDto } from '../../base/dto/refresh-token.dto';
+import { LocalGuard } from '../../base/guards/local.guard';
+import { LoginUserDto } from '../../base/dto/login-user.dto';
+import { TokenDto } from '../../base/dto/token.dto';
 
 @ApiTags('Xác thực')
 @Public()
@@ -12,10 +14,11 @@ import { RefreshTokenDto } from '../../base/dto/refresh-token.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @ApiOperation({ summary: 'Đăng nhập tài khoản' })
+  @UseGuards(LocalGuard)
   @Post('/login')
-  async signIn(@Body() user: SignInDto) {
-    return await this.authService.signIn(user.email, user.password);
+  @ApiOperation({ summary: 'Đăng nhập tài khoản' })
+  async signIn(@Body() user: LoginUserDto): Promise<TokenDto> {
+    return await this.authService.signIn(user);
   }
 
   @ApiOperation({ summary: 'Đăng ký tài khoản mới' })

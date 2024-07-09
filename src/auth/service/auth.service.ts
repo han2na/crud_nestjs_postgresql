@@ -12,6 +12,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { RefreshTokenDto } from '../../base/dto/refresh-token.dto';
 import { ConfigService } from '@nestjs/config';
 import { TokenDto } from '../../base/dto/token.dto';
+import { SignInDto } from '../dto/sign-in.dto';
 
 @Injectable()
 export class AuthService {
@@ -35,12 +36,10 @@ export class AuthService {
     return await this.getTokens(newUser);
   }
 
-  async signIn(email: string, pass: string) {
-    const user = await this.authRepository.findOneBy({ email: email });
-    if (!user) throw new ForbiddenException('AUTH.USER_OR_EMAIL_NOT_CORRECT');
-    const hashMatch = await bcrypt.compareSync(pass, user.password);
-    if (!hashMatch)
-      throw new ForbiddenException('AUTH.USER_OR_EMAIL_NOT_CORRECT');
+  async signIn(dto: SignInDto) {
+    const user: UserEntity = await this.authRepository.findOneBy({
+      email: dto.email,
+    });
     return await this.getTokens(user);
   }
 
@@ -56,7 +55,6 @@ export class AuthService {
 
     await this.authRepository.update(dto.id, updateUser);
     return { data: null };
-    ``;
   }
 
   async getTokens(user: UserEntity): Promise<TokenDto> {

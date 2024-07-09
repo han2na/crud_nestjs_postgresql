@@ -6,6 +6,7 @@ import { NestFactory } from '@nestjs/core';
 async function bootstrap() {
   const corsConfig = { cors: true };
   const app = await NestFactory.create(AppModule, corsConfig);
+
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe());
 

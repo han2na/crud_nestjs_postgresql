@@ -7,9 +7,9 @@ import { ConfigModule } from '@nestjs/config';
 import { UserEntity } from './user/entities/user.entity';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './base/guards/role.guard';
-import { AuthGuard } from './base/guards/auth.guard';
 import { MailModule } from './base/mail/mail.module';
 import { HealthModule } from './base/health/health.module';
+import { AuthGuard } from './base/guards/auth.guard';
 
 @Module({
   imports: [

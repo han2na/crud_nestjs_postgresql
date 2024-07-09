@@ -1,9 +1,9 @@
 import { Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from '../service/auth.service';
-import { AuthGuard } from '../../base/guards/auth.guard';
 import { UserAuth } from '../../base/decorator/user-auth.decorator';
 import { UserEntity } from '../../user/entities/user.entity';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '../../base/guards/auth.guard';
 
 @ApiTags('Xác thực')
 @Controller('auth')
