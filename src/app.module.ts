@@ -13,9 +13,6 @@ import { AuthGuard } from './base/guards/auth.guard';
 
 @Module({
   imports: [
-    HealthModule,
-    AuthModule,
-    UserModule,
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -27,6 +24,9 @@ import { AuthGuard } from './base/guards/auth.guard';
       entities: [UserEntity],
       synchronize: true,
     }),
+    HealthModule,
+    AuthModule,
+    UserModule,
     MailModule,
   ],
   providers: [

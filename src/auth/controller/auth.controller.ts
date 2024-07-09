@@ -14,17 +14,17 @@ import { TokenDto } from '../../base/dto/token.dto';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiOperation({ summary: 'Đăng ký tài khoản mới' })
+  @Post('/register')
+  async create(@Body() user: SignUpDto) {
+    return await this.authService.createUser(user);
+  }
+
   @UseGuards(LocalGuard)
   @Post('/login')
   @ApiOperation({ summary: 'Đăng nhập tài khoản' })
   async signIn(@Body() user: LoginUserDto): Promise<TokenDto> {
     return await this.authService.signIn(user);
-  }
-
-  @ApiOperation({ summary: 'Đăng ký tài khoản mới' })
-  @Post('/register')
-  async create(@Body() user: SignUpDto) {
-    return await this.authService.createUser(user);
   }
 
   @ApiOperation({ summary: 'Refresh access token' })

@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   UseGuards,
 } from '@nestjs/common';
@@ -22,27 +23,30 @@ import { AuthGuard } from '../../base/guards/auth.guard';
 export class AdminController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiOperation({ summary: 'Danh sách tài khoản' })
-  @Get()
-  findAll() {
-    return this.userService.findAll();
-  }
-
   @ApiOperation({ summary: 'Lấy thông tin tài khoản' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.userService.findOne(id);
   }
 
   @ApiOperation({ summary: 'Cập nhật tài khoản' })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     return this.userService.update(+id, updateUserDto);
   }
 
   @ApiOperation({ summary: 'Xóa tài khoản' })
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.userService.remove(+id);
+  }
+
+  @ApiOperation({ summary: 'Danh sách tài khoản' })
+  @Get()
+  findAll() {
+    return this.userService.findAll();
   }
 }

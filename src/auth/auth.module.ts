@@ -22,10 +22,10 @@ import { PassportModule } from '@nestjs/passport';
         global: true,
       }),
     }),
-    UserModule,
     MailModule,
+    UserModule,
   ],
-  controllers: [AuthController, AuthUserController, AuthMailController],
+  controllers: [AuthController, AuthMailController, AuthUserController],
   providers: [AuthService, AuthJwtService, LocalStrategy],
   exports: [AuthJwtService],
 })
