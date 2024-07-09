@@ -30,20 +30,27 @@ export class MailService {
   async getUser(email: string): Promise<UserEntity> {
     const user = await this.userRepository.findOneBy({ email: email });
     if (!user) {
-      throw new UnauthorizedException('User does not exist');
+      throw new UnauthorizedException('AUTH.USER_NOT_FOUND');
     }
     return user;
   }
 
   async verifyEmail(dto: CheckEmailDto) {
-    const user = await this.getUser(dto.email);
+    const user: UserEntity = await this.getUser(dto.email);
+
     try {
-      const check = authenticator.check(dto.otp, dto.email + user.uav);
+      const check: boolean = authenticator.check(dto.otp, dto.email + user.uav);
 
       if (!check) {
-        throw new UnauthorizedException('AUTH.OTP_FAIL');
+        return new UnauthorizedException('AUTH.OTP_FAIL');
       }
 
+      const updateUser: UserEntity = {
+        ...user,
+        isVerify: true,
+      };
+
+      await this.userRepository.update(user.id, updateUser);
       return { data: null };
     } catch (err) {
       throw new UnauthorizedException('AUTH.OTP_FAIL');
@@ -51,6 +58,12 @@ export class MailService {
   }
 
   async sendMail(dto: SendEmailDto) {
+    const user = await this.getUser(dto.email);
+
+    if (user.isVerify) {
+      throw new UnauthorizedException('AUTH.USER_VERIFIED');
+    }
+
     const sender: Address = {
       name: this.configService.get<string>('MAIL_NAME'),
       address: this.configService.get<string>('MAIL_SENDER'),

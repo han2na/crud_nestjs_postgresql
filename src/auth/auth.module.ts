@@ -11,9 +11,11 @@ import { MailModule } from '../base/mail/mail.module';
 import { AuthMailController } from './controller/mail.controller';
 import { AuthMiddleware } from '../base/middlewares/auth.middleware';
 import { LocalStrategy } from '../base/strategies/local.strategy';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
+    PassportModule,
     TypeOrmModule.forFeature([UserEntity]),
     JwtModule.registerAsync({
       useFactory: async () => ({

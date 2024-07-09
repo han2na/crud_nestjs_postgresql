@@ -16,6 +16,7 @@ export class AuthJwtService {
     const user: UserEntity = await this.userRepository.findOneBy({
       id: dto.sub,
     });
+
     if (user.uav !== dto.uav || !user) {
       return null;
     }
