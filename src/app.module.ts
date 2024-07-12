@@ -10,6 +10,7 @@ import { RolesGuard } from './base/guards/role.guard';
 import { MailModule } from './base/mail/mail.module';
 import { HealthModule } from './base/health/health.module';
 import { AuthGuard } from './base/guards/auth.guard';
+import { PostModule } from './post/post.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AuthGuard } from './base/guards/auth.guard';
     AuthModule,
     UserModule,
     MailModule,
+    PostModule,
   ],
   providers: [
     JwtService,
